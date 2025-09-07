@@ -1,6 +1,10 @@
 package com.college.link;
 
 
+import com.college.link.pojos.Account;
+import com.college.link.pojos.Currency;
+import com.college.link.pojos.Customer;
+import com.college.link.pojos.Deposit;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -15,12 +19,26 @@ import org.testng.annotations.Test;
 import java.time.Duration;
 
 public class TestClass {
-    ChromeDriver driver = new ChromeDriver();
-    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    ChromeDriver driver;
+    WebDriverWait wait;
+    Customer customer;
+    Account account;
+    Deposit deposit;
 
     @BeforeClass
     public void openBrowser() {
+        driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         driver.navigate().to("https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login");
+
+    }
+
+    @BeforeClass(alwaysRun = true, dependsOnMethods = "openBrowser")
+    public void init(){
+        DataLoader dataLoader = new DataLoader();
+        customer = dataLoader.loadCustomer();
+        account = dataLoader.loadAccount(customer);
+        deposit = dataLoader.loadDeposit();
     }
 
     @Test(alwaysRun = true, description = "create and verify a customer")
@@ -33,11 +51,11 @@ public class TestClass {
 
         // pio eukolos aytos o locator "input[ng-model='fName']"
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[text()='First Name :']/following-sibling::input")));
-        driver.findElement(By.xpath("//label[text()='First Name :']/following-sibling::input")).sendKeys("alex");
+        driver.findElement(By.xpath("//label[text()='First Name :']/following-sibling::input")).sendKeys(customer.getFirstName());
 
-        driver.findElement(By.xpath("//label[text()='Last Name :']/following-sibling::input")).sendKeys("galano");
+        driver.findElement(By.xpath("//label[text()='Last Name :']/following-sibling::input")).sendKeys(customer.getLastName());
 
-        driver.findElement(By.xpath("//label[text()='Post Code :']/following-sibling::input")).sendKeys("33333");
+        driver.findElement(By.xpath("//label[text()='Post Code :']/following-sibling::input")).sendKeys(customer.getPostCode());
 
         driver.findElement(By.xpath("//button[text()='Add Customer']")).click();
 
@@ -46,8 +64,8 @@ public class TestClass {
         driver.findElement(By.cssSelector("button[ng-click='showCust()']")).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[ng-model='searchCustomer']")));
-        driver.findElement(By.cssSelector("input[ng-model='searchCustomer']")).sendKeys("alex");
-        Assert.assertTrue(driver.findElement(By.xpath("//td[text()='alex']")).isDisplayed());
+        driver.findElement(By.cssSelector("input[ng-model='searchCustomer']")).sendKeys(customer.getFirstName());
+        Assert.assertTrue(driver.findElement(By.xpath("//td[text()='"+customer.getFirstName()+"']")).isDisplayed());
     }
 
 
@@ -56,9 +74,9 @@ public class TestClass {
         driver.findElement(By.cssSelector("button[ng-click='openAccount()']")).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("userSelect")));
-        new Select(driver.findElement(By.id("userSelect"))).selectByVisibleText("alex galano");
+        new Select(driver.findElement(By.id("userSelect"))).selectByVisibleText(account.getCustomerName());
 
-        new Select(driver.findElement(By.id("currency"))).selectByVisibleText("Dollar");
+        new Select(driver.findElement(By.id("currency"))).selectByVisibleText(account.getCurrency().toString());
 
         driver.findElement(By.xpath("//button[text()='Process']")).click();
 
@@ -68,8 +86,8 @@ public class TestClass {
         driver.findElement(By.cssSelector("button[ng-click='showCust()']")).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[ng-model='searchCustomer']")));
-        driver.findElement(By.cssSelector("input[ng-model='searchCustomer']")).sendKeys("galano");
-        String text = driver.findElement(By.xpath("//td[text()='galano']/following-sibling::td[2]/span")).getText();
+        driver.findElement(By.cssSelector("input[ng-model='searchCustomer']")).sendKeys(customer.getLastName());
+        String text = driver.findElement(By.xpath("//td[text()='"+customer.getLastName()+"']/following-sibling::td[2]/span")).getText();
         Assert.assertTrue(!text.isBlank());
     }
 
@@ -80,21 +98,21 @@ public class TestClass {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[text()='Customer Login']")));
         driver.findElement(By.xpath("//button[text()='Customer Login']")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("userSelect")));
-        new Select(driver.findElement(By.id("userSelect"))).selectByVisibleText("alex galano");
+        new Select(driver.findElement(By.id("userSelect"))).selectByVisibleText(customer.getFirstName()+" "+customer.getLastName());
 
         driver.findElement(By.xpath("//button[text()='Login']")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("button[ng-click='deposit()'")));
         driver.findElement(By.cssSelector("button[ng-click='deposit()'")).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[ng-model='amount']")));
-        driver.findElement(By.cssSelector("input[ng-model='amount']")).sendKeys("1000");
+        driver.findElement(By.cssSelector("input[ng-model='amount']")).sendKeys(deposit.getAmount());
         driver.findElement(By.xpath("//button[text()='Deposit']")).click();
 
         driver.findElement(By.cssSelector("button[ng-click='transactions()']")).click();
 
         Thread.sleep(2000);
         driver.navigate().refresh();  //αυτό το κάνουμε λόγω του bug της εφαρμογήε
-        Assert.assertTrue(driver.findElement(By.xpath("//td[text()='1000']")).isDisplayed());
+        Assert.assertTrue(driver.findElement(By.xpath("//td[text()='"+deposit.getAmount()+"']")).isDisplayed());
 
     }
 
