@@ -1,1 +1,0 @@
-{"uuid":"408a167d-1064-4f50-8ad2-023d820afe0a","name":"com.college.link.TestClass","children":["7d42fce4-03fc-486a-9cee-7ead4782e7a1"],"befores":[{"name":"openBrowser","status":"passed","stage":"finished","description":"","steps":[],"attachments":[],"parameters":[],"start":1756741254404,"stop":1756741259531}],"afters":[],"start":1756741254338,"stop":1756741259712}
