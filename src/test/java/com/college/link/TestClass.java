@@ -49,7 +49,8 @@ public class TestClass {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("button[ng-click='addCust()']")));
         driver.findElement(By.cssSelector("button[ng-click='addCust()']")).click();
 
-        // pio eukolos aytos o locator "input[ng-model='fName']"
+        // (another easy locator "input[ng-model='fName']")
+        //Customer Input Data
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[text()='First Name :']/following-sibling::input")));
         driver.findElement(By.xpath("//label[text()='First Name :']/following-sibling::input")).sendKeys(customer.getFirstName());
 
@@ -61,8 +62,10 @@ public class TestClass {
 
         driver.switchTo().alert().accept();
 
+        //Go to Customers section and verify customer creation
         driver.findElement(By.cssSelector("button[ng-click='showCust()']")).click();
 
+        //search for customer
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[ng-model='searchCustomer']")));
         driver.findElement(By.cssSelector("input[ng-model='searchCustomer']")).sendKeys(customer.getFirstName());
         Assert.assertTrue(driver.findElement(By.xpath("//td[text()='"+customer.getFirstName()+"']")).isDisplayed());
@@ -82,6 +85,7 @@ public class TestClass {
 
         driver.switchTo().alert().accept();
 
+        //search for customer
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("button[ng-click='showCust()']")));
         driver.findElement(By.cssSelector("button[ng-click='showCust()']")).click();
 
